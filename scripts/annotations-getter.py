@@ -1,39 +1,74 @@
-from pydoc import classname
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 import xml.etree.cElementTree as et
 
 # Path to the assigned IDs CSV file
 pathToImageNamesCSV = "dataset/table-dataset/id-assignments.csv"
-pathToAnnotationsXML = "dataset/table-dataset/test.xml"
+pathToXMLAnnotationsFolder = "dataset/table-dataset/annotations/"
 
 # Read the CSV file and load the image name and the assigned IDs
 # imageNames = pd.read_csv(pathToImageNamesCSV)
 
-# This is the root of the XML tree
-tree = et.parse(pathToAnnotationsXML)
-root = tree.getroot()
+def xmlAnnotationsToList(pathToXML):
 
-# Here we extract the file name
-filename = root.find("filename").text
+    # This is the root of the XML tree
+    tree = et.parse(pathToXML)
+    root = tree.getroot()
 
-# Now we proceed and extract the class name and the bounding box
-objectRoot = root.find("object")
+    # Here we extract the file name
+    filename = root.find("filename").text
 
-# This is the class name
-className = objectRoot.find("name").text
+    # Now we proceed and extract the class name and the bounding box
+    objectRoot = root.find("object")
+
+    # This is the class name
+    className = objectRoot.find("name").text
 
 
-# Now we go further into the tree and get the bounding box
-bndBoxRoot = objectRoot.find("bndbox")
+    # Now we go further into the tree and get the bounding box
+    bndBoxRoot = objectRoot.find("bndbox")
 
-x1 = bndBoxRoot.find("xmin").text
-y1 = bndBoxRoot.find("ymin").text
-x2 = bndBoxRoot.find("xmax").text
-y2 = bndBoxRoot.find("ymax").text
+    x1 = bndBoxRoot.find("xmin").text
+    y1 = bndBoxRoot.find("ymin").text
+    x2 = bndBoxRoot.find("xmax").text
+    y2 = bndBoxRoot.find("ymax").text
 
-print(filename)
-print(className)
-print(x1)
-print(y1)
-print(x2)
-print(y2)
+    return [filename, x1, y1, x2, y2, className]
+
+def annotationsXMLToDataFrame(pathToAnnotationsFolder):
+
+    totalElementsFound = 0
+    totalFilesFound = 0
+    totalAnnotationsRead = 0
+
+    listOfAnnotations = []
+
+    for f in listdir(pathToAnnotationsFolder):
+
+        totalElementsFound += 1
+
+        completePathToFile = join(pathToAnnotationsFolder, f)
+
+        if isfile(completePathToFile):
+            totalFilesFound += 1
+            readAnnotations = xmlAnnotationsToList(completePathToFile)
+
+            if(len(readAnnotations) == 6):
+                totalAnnotationsRead += 1
+                listOfAnnotations.append(readAnnotations)
+
+    print("Total Elements Found: " + str(totalElementsFound))
+    print("Total Files Found: " + str(totalFilesFound))
+    print("Total Annotations Read: " + str(totalAnnotationsRead))
+
+    imageLabels = pd.DataFrame(listOfAnnotations, columns=["original-name", "x1", "y1", "x2", "y2", "class"])
+    print(imageLabels)
+    return imageLabels
+
+def main():
+
+    annotationsXMLToDataFrame(pathToXMLAnnotationsFolder)
+
+if __name__ == "__main__":
+    main()
