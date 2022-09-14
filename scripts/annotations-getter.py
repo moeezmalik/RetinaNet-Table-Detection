@@ -63,12 +63,24 @@ def annotationsXMLToDataFrame(pathToAnnotationsFolder):
     print("Total Annotations Read: " + str(totalAnnotationsRead))
 
     imageLabels = pd.DataFrame(listOfAnnotations, columns=["original-name", "x1", "y1", "x2", "y2", "class"])
-    print(imageLabels)
+    # print(imageLabels)
     return imageLabels
+
+def imageNamesCSVToDataFrame(pathToCSV):
+    return pd.read_csv(pathToCSV)
 
 def main():
 
-    annotationsXMLToDataFrame(pathToXMLAnnotationsFolder)
+    imageLabels = annotationsXMLToDataFrame(pathToXMLAnnotationsFolder)
+    imageNames = imageNamesCSVToDataFrame(pathToImageNamesCSV)
+
+    print("")
+    print(imageNames.dtypes)
+    print("")
+    print(imageLabels.dtypes)
+
+    joined = pd.merge(left=imageNames, right=imageLabels, how='left', on="original-name")
+    print(joined)
 
 if __name__ == "__main__":
     main()

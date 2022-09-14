@@ -2,11 +2,11 @@ import cv2 as opencv
 import os
 
 # Configurations
-image_path = "dataset/visualise-test/test-image.jpg"
-x1 = 187
-y1 = 830
-x2 = 1470
-y2 = 1382
+image_path = "dataset/table-dataset/images/PMC2816861_00002.jpg"
+x1 = 49
+y1 = 565
+x2 = 559
+y2 = 705
 
 # Open the image
 image = opencv.imread(image_path)
