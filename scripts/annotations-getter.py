@@ -7,6 +7,9 @@ import xml.etree.cElementTree as et
 pathToImageNamesCSV = "dataset/table-dataset/id-assignments.csv"
 pathToXMLAnnotationsFolder = "dataset/table-dataset/annotations/"
 
+pathToSaveAllAnnotations = "dataset/table-dataset/all-annotations.csv"
+pathToSaveAllAnnotationsWithoutOriginalNames = "dataset/table-dataset/all-annotations-no-original.csv"
+
 # Read the CSV file and load the image name and the assigned IDs
 # imageNames = pd.read_csv(pathToImageNamesCSV)
 
@@ -19,22 +22,32 @@ def xmlAnnotationsToList(pathToXML):
     # Here we extract the file name
     filename = root.find("filename").text
 
-    # Now we proceed and extract the class name and the bounding box
-    objectRoot = root.find("object")
+    # Get all objects in the current file
+    objectsRoot = root.findall("object")
 
-    # This is the class name
-    className = objectRoot.find("name").text
+    # Initialise the list to fill all the annotations in
+    readAnnotations = []
+
+    # Iterate over all found objects
+    for object in objectsRoot:
+        
+        # This is the class name
+        className = object.find("name").text
 
 
-    # Now we go further into the tree and get the bounding box
-    bndBoxRoot = objectRoot.find("bndbox")
+        # Now we go further into the tree and get the bounding box
+        bndBoxRoot = object.find("bndbox")
 
-    x1 = bndBoxRoot.find("xmin").text
-    y1 = bndBoxRoot.find("ymin").text
-    x2 = bndBoxRoot.find("xmax").text
-    y2 = bndBoxRoot.find("ymax").text
+        x1 = bndBoxRoot.find("xmin").text
+        y1 = bndBoxRoot.find("ymin").text
+        x2 = bndBoxRoot.find("xmax").text
+        y2 = bndBoxRoot.find("ymax").text
 
-    return [filename, x1, y1, x2, y2, className]
+        readAnnotations.append([filename, x1, y1, x2, y2, className])
+
+
+    return readAnnotations
+
 
 def annotationsXMLToDataFrame(pathToAnnotationsFolder):
 
@@ -54,9 +67,10 @@ def annotationsXMLToDataFrame(pathToAnnotationsFolder):
             totalFilesFound += 1
             readAnnotations = xmlAnnotationsToList(completePathToFile)
 
-            if(len(readAnnotations) == 6):
-                totalAnnotationsRead += 1
-                listOfAnnotations.append(readAnnotations)
+            for annotation in readAnnotations:
+                if(len(annotation) == 6):
+                    totalAnnotationsRead += 1
+                    listOfAnnotations.append(annotation)
 
     print("Total Elements Found: " + str(totalElementsFound))
     print("Total Files Found: " + str(totalFilesFound))
@@ -71,16 +85,28 @@ def imageNamesCSVToDataFrame(pathToCSV):
 
 def main():
 
+    # Read the files and get image labels and annotations
     imageLabels = annotationsXMLToDataFrame(pathToXMLAnnotationsFolder)
     imageNames = imageNamesCSVToDataFrame(pathToImageNamesCSV)
 
     print("")
-    print(imageNames.dtypes)
+    print("Unique in Names: ")
+    print(imageNames.nunique())
     print("")
-    print(imageLabels.dtypes)
+    print("Unique in Labels: ")
+    print(imageLabels.nunique())
+    print("")
 
-    joined = pd.merge(left=imageNames, right=imageLabels, how='left', on="original-name")
-    print(joined)
+    # Dataframe and CSV preparation for all Annotations
+    allAnnotations = pd.merge(left=imageNames, right=imageLabels, how='left', on="original-name")
+    print(allAnnotations)
+    allAnnotations.to_csv(path_or_buf=pathToSaveAllAnnotations, header=True, index=False)
+
+    # Dataframe and CSV preparation for all Annotations without Original Names
+    allAnnotationsNoOriginal = allAnnotations.drop(columns=['original-name'])
+    print(allAnnotationsNoOriginal)
+    allAnnotationsNoOriginal.to_csv(path_or_buf=pathToSaveAllAnnotationsWithoutOriginalNames, header=True, index=False)
+
 
 if __name__ == "__main__":
     main()
