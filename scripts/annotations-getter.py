@@ -10,8 +10,6 @@ pathToXMLAnnotationsFolder = "dataset/table-dataset/annotations/"
 pathToSaveAllAnnotations = "dataset/table-dataset/all-annotations.csv"
 pathToSaveAllAnnotationsWithoutOriginalNames = "dataset/table-dataset/all-annotations-no-original.csv"
 
-# Read the CSV file and load the image name and the assigned IDs
-# imageNames = pd.read_csv(pathToImageNamesCSV)
 
 def xmlAnnotationsToList(pathToXML):
 
@@ -47,7 +45,6 @@ def xmlAnnotationsToList(pathToXML):
 
 
     return readAnnotations
-
 
 def annotationsXMLToDataFrame(pathToAnnotationsFolder):
 
