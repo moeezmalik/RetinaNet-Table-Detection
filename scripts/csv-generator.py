@@ -1,11 +1,11 @@
 import pandas as pd
 
-pathToImageNames = "dataset/table-dataset/id-assignments.csv"
-pathToAnnotationsCSV = "dataset/table-dataset/all-annotations-no-original.csv"
+pathToImageNames = "dataset/table-dataset/csv/id-assignments.csv"
+pathToAnnotationsCSV = "dataset/table-dataset/csv/all-annotations-no-original.csv"
 
-pathToSaveTrain = "dataset/table-dataset/train.csv"
-pathToSaveValidation = "dataset/table-dataset/val.csv"
-pathToSaveTest = "dataset/table-dataset/test.csv"
+pathToSaveTrain = "dataset/table-dataset/csv/train.csv"
+pathToSaveValidation = "dataset/table-dataset/csv/val.csv"
+pathToSaveTest = "dataset/table-dataset/csv/test.csv"
 
 noOfTestImages = 51
 noOfValidationImages = 280
