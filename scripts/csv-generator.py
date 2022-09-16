@@ -14,10 +14,24 @@ def mergeWithAnnotationsAndSaveCSV(images, annotations, pathToSaveCSV):
 
     images = images.drop(columns=['original-name'])
     merged = pd.merge(left=images, right=annotations, how='left', on="id")
+
+    # merged.x1 = merged.x1.astype(int)
+    # merged.y1 = merged.x1.astype(int)
+    # merged.x2 = merged.x1.astype(int)
+    # merged.y2 = merged.x1.astype(int)
+
+    print(merged)
+
     merged.to_csv(path_or_buf=pathToSaveCSV, header=False, index=False)
 
 def csvToDataFrame(pathToCSV):
-    return pd.read_csv(pathToCSV)
+    
+    # Read the CSV file into the dataframe and treat all columns as object types
+    readDF = pd.read_csv(pathToCSV, dtype=object)
+
+    # Negative examples have empty bounding box variables hence the empty strings
+    # We will need to replace the NaNs with empty strings
+    return readDF.fillna("")
 
 def main():
     print("Starting CSV Generator")
