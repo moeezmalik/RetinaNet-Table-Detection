@@ -1,3 +1,5 @@
+.DS_Store
 dataset/
 legacy/table-dataset/
 legacy/weights/
+models/
